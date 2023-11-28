@@ -32,6 +32,24 @@ const DEFAULT_OPTIONS: IndexedDBHelperOptions = {
 
 const initialError = new Error('The store is not initialized yet');
 
+/**
+ * 全局已经打开的 db 库
+ */
+const openDBRequestByName = new Map<string, IDBOpenDBRequest>();
+
+const getOpenedDBRequest = (dbName: string): IDBOpenDBRequest | null => {
+  try {
+    let idbRequest = openDBRequestByName.get(dbName);
+    if (!idbRequest) {
+      idbRequest = indexedDB.open(dbName);
+      openDBRequestByName.set(dbName, idbRequest);
+    }
+    return idbRequest;
+  } catch (err) {
+    return null;
+  }
+};
+
 class IndexedDBHelper {
   readonly store: UseStore | undefined;
 
@@ -143,19 +161,24 @@ class IndexedDBHelper {
   private createStore({
     dbName,
     storeName,
-  }: CreateStoreOptions): UseStore | undefined {
+  }: CreateStoreOptions): UseStore | null {
     try {
-      const request = indexedDB.open(dbName);
-      request.onupgradeneeded = () =>
-        request.result.createObjectStore(storeName);
-      const dbp = promisifyRequest(request);
+      const idbRequest = getOpenedDBRequest(dbName);
+
+      if (!idbRequest) {
+        return null;
+      }
+
+      idbRequest.onupgradeneeded = () =>
+        idbRequest.result.createObjectStore(storeName);
+      const dbp = promisifyRequest(idbRequest);
 
       return (txMode, callback) =>
         dbp.then(db =>
           callback(db.transaction(storeName, txMode).objectStore(storeName)),
         );
     } catch (error) {}
-    return undefined;
+    return null;
   }
 }
 
