@@ -1,6 +1,6 @@
 {
-  "name": "tool-library-template",
-  "version": "0.0.2",
+  "name": "tiny-idx",
+  "version": "0.0.1",
   "jsnext:source": "./src/index.ts",
   "types": "./dist/types/index.d.ts",
   "main": "./dist/lib/index.js",

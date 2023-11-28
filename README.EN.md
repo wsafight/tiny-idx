@@ -1,23 +1,24 @@
-# tool-library-template
+# tiny-idx
 
-<!-- [![NPM Version](https://badgen.net/npm/v/tool-library-template)](https://www.npmjs.com/package/tool-library-template) -->
+[![NPM Version](https://badgen.net/npm/v/tiny-idx)](https://www.npmjs.com/package/tiny-idx)
 
-Tool library template
+Only supports localForage of indexedDB
 
 ## Features
 
-- [x] Based on modern.js
+- [ ] Based on localForage
+- [x] Only supports indexedDB
 
 ## Install
 
 ```bash
-npm install tool-library-template
+npm install tiny-idx
 ```
 
 Or
 
 ```bash
-yarn add tool-library-template
+yarn add tiny-idx
 ```
 
 ## Usage
@@ -36,7 +37,5 @@ yarn add tool-library-template
 ```
 
 ## Changelog
-
-- 0.0.2 switch framework to modern.js
 
 - 0.0.1 basically available
