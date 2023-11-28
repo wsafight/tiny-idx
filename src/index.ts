@@ -51,7 +51,7 @@ const getOpenedDBRequest = (dbName: string): IDBOpenDBRequest | null => {
 };
 
 class IndexedDBHelper {
-  readonly store: UseStore | undefined;
+  readonly store: UseStore | null;
 
   constructor(options: IndexedDBHelperOptions = { ...DEFAULT_OPTIONS }) {
     const { dbName, storeName } = {
