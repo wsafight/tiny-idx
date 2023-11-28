@@ -6,7 +6,6 @@ Only supports localForage of indexedDB
 
 ## Features
 
-- [ ] Based on localForage
 - [x] Only supports indexedDB
 
 ## Install

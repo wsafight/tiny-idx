@@ -9,7 +9,6 @@ Read this in other languages:
 
 ## 特性
 
-- [ ] 基于 localForage
 - [x] 仅支持 indexedDB
 
 ## 安装
