@@ -55,8 +55,8 @@ class IndexedDBHelper {
 
   constructor(options: IndexedDBHelperOptions = { ...DEFAULT_OPTIONS }) {
     const { dbName, storeName } = {
-      ...options,
       ...DEFAULT_OPTIONS,
+      ...options,
     };
     this.store = this.createStore({ dbName, storeName });
   }
