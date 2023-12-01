@@ -37,8 +37,8 @@
   "dependencies": {},
   "peerDependencies": {},
   "devDependencies": {
-    "@modern-js/module-tools": "2.40.0",
-    "@modern-js/eslint-config": "2.40.0",
+    "@modern-js/module-tools": "2.41.0",
+    "@modern-js/eslint-config": "2.41.0",
     "@modern-js/tsconfig": "2.40.0",
     "@modern-js-app/eslint-config": "2.40.0",
     "rimraf": "5.0.5",
@@ -49,7 +49,7 @@
     "@types/jest": "29.5.9",
     "@types/node": "20.9.3",
     "@types/react": "18.2.38",
-    "@modern-js/plugin-testing": "2.40.0"
+    "@modern-js/plugin-testing": "2.41.0"
   },
   "sideEffects": [],
   "publishConfig": {
