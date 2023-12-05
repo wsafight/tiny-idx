@@ -2,11 +2,9 @@ export function promisifyRequest<T = undefined>(
   request: IDBRequest<T> | IDBTransaction,
 ): Promise<T> {
   return new Promise<T>((resolve, reject) => {
-    // @ts-expect-error - file size hacks
-    request.oncomplete = () => resolve(request.result);
+    (request as any).oncomplete = () => resolve((request as any).result);
     (request as any).onsuccess = () => resolve((request as any).result);
-    // @ts-expect-error - file size hacks
-    request.onabort = () => reject(request.error);
+    (request as any).onabort = () => reject(request.error);
     request.onerror = () => reject(request.error);
   });
 }
@@ -26,31 +24,28 @@ interface IndexedDBHelperOptions extends CreateStoreOptions {
 }
 
 const DEFAULT_OPTIONS: IndexedDBHelperOptions = {
-  dbName: 'keyval-store',
+  dbName: 'tiny-idb',
   storeName: 'keyval',
 };
 
-const initialError = new Error('The store is not initialized yet');
+const getInitialError = () => new Error('The store is not initialized yet');
 
-/**
- * 全局已经打开的 db 库
- */
-const openDBRequestByName = new Map<string, IDBOpenDBRequest>();
+interface OpenIndexDBParams {
+  dbName: string;
+  version?: number;
+}
 
-const getOpenedDBRequest = (dbName: string): IDBOpenDBRequest | null => {
+const getOpenedDBRequest = ({
+  dbName,
+}: OpenIndexDBParams): IDBOpenDBRequest | null => {
   try {
-    let idbRequest = openDBRequestByName.get(dbName);
-    if (!idbRequest) {
-      idbRequest = indexedDB.open(dbName);
-      openDBRequestByName.set(dbName, idbRequest);
-    }
-    return idbRequest;
+    return indexedDB.open(dbName);
   } catch (err) {
     return null;
   }
 };
 
-class IndexedDBHelper {
+class TinyIdx {
   readonly store: UseStore | null;
 
   constructor(options: IndexedDBHelperOptions = { ...DEFAULT_OPTIONS }) {
@@ -63,14 +58,14 @@ class IndexedDBHelper {
 
   get<T = any>(key: IDBValidKey): Promise<T | undefined> {
     if (!this.store) {
-      return Promise.reject(initialError);
+      return Promise.reject(getInitialError());
     }
     return this.store('readonly', store => promisifyRequest(store.get(key)));
   }
 
   set(key: IDBValidKey, value: any): Promise<void> {
     if (!this.store) {
-      return Promise.reject(initialError);
+      return Promise.reject(getInitialError());
     }
     return this.store('readwrite', store => {
       store.put(value, key);
@@ -80,7 +75,7 @@ class IndexedDBHelper {
 
   setMany(entries: [IDBValidKey, any][]): Promise<void> {
     if (!this.store) {
-      return Promise.reject(initialError);
+      return Promise.reject(getInitialError());
     }
     return this.store('readwrite', store => {
       entries.forEach(entry => store.put(entry[1], entry[0]));
@@ -90,7 +85,7 @@ class IndexedDBHelper {
 
   getMany<T = any>(keys: IDBValidKey[]): Promise<T[]> {
     if (!this.store) {
-      return Promise.reject(initialError);
+      return Promise.reject(getInitialError());
     }
     return this.store('readonly', store =>
       Promise.all(keys.map(key => promisifyRequest(store.get(key)))),
@@ -102,7 +97,7 @@ class IndexedDBHelper {
     updater: (oldValue: T | undefined) => T,
   ): Promise<void> {
     if (!this.store) {
-      return Promise.reject(initialError);
+      return Promise.reject(getInitialError());
     }
     return this.store(
       'readwrite',
@@ -125,7 +120,7 @@ class IndexedDBHelper {
 
   del(key: IDBValidKey): Promise<void> {
     if (!this.store) {
-      return Promise.reject(initialError);
+      return Promise.reject(getInitialError());
     }
     return this.store('readwrite', store => {
       store.delete(key);
@@ -135,7 +130,7 @@ class IndexedDBHelper {
 
   delMany(keys: IDBValidKey[]): Promise<void> {
     if (!this.store) {
-      return Promise.reject(initialError);
+      return Promise.reject(getInitialError());
     }
     return this.store('readwrite', (store: IDBObjectStore) => {
       keys.forEach((key: IDBValidKey) => store.delete(key));
@@ -150,7 +145,7 @@ class IndexedDBHelper {
    */
   clear(): Promise<void> {
     if (!this.store) {
-      return Promise.reject(initialError);
+      return Promise.reject(getInitialError());
     }
     return this.store('readwrite', store => {
       store.clear();
@@ -163,23 +158,27 @@ class IndexedDBHelper {
     storeName,
   }: CreateStoreOptions): UseStore | null {
     try {
-      const idbRequest = getOpenedDBRequest(dbName);
+      const idbRequest = getOpenedDBRequest({ dbName });
 
       if (!idbRequest) {
         return null;
       }
 
-      idbRequest.onupgradeneeded = () =>
+      // TODO 添加自动升级 策略
+      idbRequest.onupgradeneeded = () => {
         idbRequest.result.createObjectStore(storeName);
+      };
+
       const dbp = promisifyRequest(idbRequest);
 
-      return (txMode, callback) =>
-        dbp.then(db =>
+      return (txMode, callback) => {
+        return dbp.then(db =>
           callback(db.transaction(storeName, txMode).objectStore(storeName)),
         );
+      };
     } catch (error) {}
     return null;
   }
 }
 
-export { IndexedDBHelper };
+export { TinyIdx };

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script type="module">
+    import { TinyIdx } from '../dist/index.js';
+    const cacheByName = {};
+
+    // 当前没有获取到具体的用户信息默认放到 $global$ 里面去
+    const getPersonalCacheFromIdb = ({ userNick = '$global$', storeName = 'key-val' } = { userNick: '$global$' }) => {
+      const dbName = `${window.page || '$page$'}.${userNick}`;
+      let personalCache = cacheByName[`${dbName}:${storeName}`];
+      if (!personalCache) {
+        personalCache = new TinyIdx({
+          dbName,
+          storeName,
+        });
+      }
+      console.log('wsa-cache', personalCache);
+      return personalCache;
+    };
+    // getPersonalCacheFromIdb().get('123').then(res => {
+    //   console.log('wsa-a', res);
+    // });
+    getPersonalCacheFromIdb().set('123', '456').then(() => {
+      console.log('wsa-b');
+      let b = getPersonalCacheFromIdb().get('123').then(res => {
+        console.log('wsa-a', res);
+      }).catch(err => {
+        console.log('wsa-err', err);
+      });
+      console.log('wsa-bbb', b)
+    })
+    getPersonalCacheFromIdb({
+      storeName: '12321',
+    }).set('123', '456').then(() => {
+      console.log('wsa-b');
+      let b = getPersonalCacheFromIdb().get('123').then(res => {
+        console.log('wsa-a', res);
+      }).catch(err => {
+        console.log('wsa-err', err);
+      });
+      console.log('wsa-bbb', b)
+    })
+  </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

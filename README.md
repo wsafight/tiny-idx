@@ -40,4 +40,6 @@ yarn add tiny-idx
 
 ## Changelog
 
+- 0.0.4 修复 indexedDB 只能执行一次错误
+- 0.0.3 修复选项错误
 - 0.0.1 基本可用

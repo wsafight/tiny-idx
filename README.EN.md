@@ -37,4 +37,6 @@ yarn add tiny-idx
 
 ## Changelog
 
+- 0.0.4 Fix indexedDB can only be executed once error
+- 0.0.3 Fix options errors
 - 0.0.1 basically available

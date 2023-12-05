@@ -1,6 +1,6 @@
 {
   "name": "tiny-idx",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "jsnext:source": "./src/index.ts",
   "types": "./dist/types/index.d.ts",
   "main": "./dist/lib/index.js",
